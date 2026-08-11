@@ -8,9 +8,12 @@ const ciWorkflow = readFileSync(
 );
 
 describe("repository workflow policy", () => {
-  it("admits trusted heads before using the quarantined runner group", () => {
+  it("keeps pull requests hosted and binds trusted main jobs to the approved group", () => {
     expect(ciWorkflow).toContain("name: Trusted head admission");
     expect(ciWorkflow).toContain("Reject external fork execution");
+    expect(ciWorkflow).toContain("main-build-test:");
+    expect(ciWorkflow).toContain("main_public_artifact_integrity:");
+    expect(ciWorkflow).toContain("runs-on: ubuntu-latest");
     expect(ciWorkflow).toContain(
       "group: ${{ vars.CI_RUNNER_GROUP || 'Public CI - Quarantined' }}",
     );
