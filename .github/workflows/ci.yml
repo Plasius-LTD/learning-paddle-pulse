@@ -9,6 +9,8 @@ permissions:
   actions: read
   contents: read
 
+# Repository Actions variables bind trusted package work to the approved group;
+# the fallbacks keep a cloned template fail-closed on the same group and labels.
 jobs:
   trusted_head:
     name: Trusted head admission
