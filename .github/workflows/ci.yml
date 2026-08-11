@@ -9,6 +9,8 @@ permissions:
   actions: read
   contents: read
 
+# Repository Actions variables bind trusted package work to the approved group;
+# the fallbacks keep a cloned template fail-closed on the same group and labels.
 jobs:
   trusted_head:
     name: Trusted head admission
@@ -30,9 +32,9 @@ jobs:
 
   build-test:
     needs: trusted_head
-    if: ${{ github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name == github.repository }}
-    runs-on: ${{ fromJSON(github.event_name == 'pull_request' && '["ubuntu-latest"]' || '["self-hosted","Linux","X64"]') }}
-    steps:
+    if: ${{ github.event_name == 'pull_request' && github.event.pull_request.head.repo.full_name == github.repository }}
+    runs-on: ubuntu-latest
+    steps: &build_test_steps
       - uses: actions/checkout@v4
 
       - uses: actions/setup-node@v4
@@ -115,16 +117,25 @@ jobs:
           fail_ci_if_error: false
           slug: ${{ github.repository }}
 
+  main-build-test:
+    name: build-test
+    needs: trusted_head
+    if: ${{ github.event_name == 'push' }}
+    runs-on:
+      group: ${{ vars.CI_RUNNER_GROUP || 'Public CI - Quarantined' }}
+      labels: ${{ fromJSON(vars.CI_RUNNER_LABELS || '["self-hosted","Linux","X64"]') }}
+    steps: *build_test_steps
+
   # BEGIN PLASIUS PUBLIC ARTIFACT INTEGRITY JOB
   public_artifact_integrity:
     name: Public artifact integrity
     needs: trusted_head
-    if: ${{ github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name == github.repository }}
-    runs-on: ${{ fromJSON(github.event_name == 'pull_request' && '["ubuntu-latest"]' || '["self-hosted","Linux","X64"]') }}
+    if: ${{ github.event_name == 'pull_request' && github.event.pull_request.head.repo.full_name == github.repository }}
+    runs-on: ubuntu-latest
     timeout-minutes: 10
     permissions:
       contents: read
-    steps:
+    steps: &public_artifact_integrity_steps
       - name: Checkout repository
         uses: actions/checkout@v4
       - name: Set up Node.js
@@ -133,4 +144,16 @@ jobs:
           node-version-file: .nvmrc
       - name: Verify public artifact integrity
         run: node ./scripts/verify-public-artifacts.cjs '--package-dir' '.'
+
+  main_public_artifact_integrity:
+    name: Public artifact integrity
+    needs: trusted_head
+    if: ${{ github.event_name == 'push' }}
+    runs-on:
+      group: ${{ vars.CI_RUNNER_GROUP || 'Public CI - Quarantined' }}
+      labels: ${{ fromJSON(vars.CI_RUNNER_LABELS || '["self-hosted","Linux","X64"]') }}
+    timeout-minutes: 10
+    permissions:
+      contents: read
+    steps: *public_artifact_integrity_steps
   # END PLASIUS PUBLIC ARTIFACT INTEGRITY JOB
