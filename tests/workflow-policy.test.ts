@@ -14,12 +14,8 @@ describe("repository workflow policy", () => {
     expect(ciWorkflow).toContain("main-build-test:");
     expect(ciWorkflow).toContain("main_public_artifact_integrity:");
     expect(ciWorkflow).toContain("runs-on: ubuntu-latest");
-    expect(ciWorkflow).toContain(
-      "group: ${{ vars.CI_RUNNER_GROUP || 'Public CI - Quarantined' }}",
-    );
-    expect(ciWorkflow).toContain(
-      "labels: ${{ fromJSON(vars.CI_RUNNER_LABELS || '[\"self-hosted\",\"Linux\",\"X64\"]') }}",
-    );
+    expect(ciWorkflow).toContain("group: Public CI - Quarantined");
+    expect(ciWorkflow).toContain("labels: [self-hosted, Linux, X64]");
     expect(ciWorkflow).not.toContain(
       "github.event_name == 'pull_request' && '[\"ubuntu-latest\"]'",
     );
