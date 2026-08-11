@@ -9,8 +9,7 @@ permissions:
   actions: read
   contents: read
 
-# Repository Actions variables bind trusted package work to the approved group;
-# the fallbacks keep a cloned template fail-closed on the same group and labels.
+# Trusted main jobs bind directly to the approved public-package runner group.
 jobs:
   trusted_head:
     name: Trusted head admission
@@ -122,8 +121,8 @@ jobs:
     needs: trusted_head
     if: ${{ github.event_name == 'push' }}
     runs-on:
-      group: ${{ vars.CI_RUNNER_GROUP || 'Public CI - Quarantined' }}
-      labels: ${{ fromJSON(vars.CI_RUNNER_LABELS || '["self-hosted","Linux","X64"]') }}
+      group: Public CI - Quarantined
+      labels: [self-hosted, Linux, X64]
     steps: *build_test_steps
 
   # BEGIN PLASIUS PUBLIC ARTIFACT INTEGRITY JOB
@@ -150,8 +149,8 @@ jobs:
     needs: trusted_head
     if: ${{ github.event_name == 'push' }}
     runs-on:
-      group: ${{ vars.CI_RUNNER_GROUP || 'Public CI - Quarantined' }}
-      labels: ${{ fromJSON(vars.CI_RUNNER_LABELS || '["self-hosted","Linux","X64"]') }}
+      group: Public CI - Quarantined
+      labels: [self-hosted, Linux, X64]
     timeout-minutes: 10
     permissions:
       contents: read
