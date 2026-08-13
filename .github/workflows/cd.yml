@@ -465,6 +465,7 @@ jobs:
         with:
           node-version-file: ".nvmrc"
           package-manager-cache: false
+          registry-url: "https://registry.npmjs.org"
 
       - name: Verify release runtime
         run: |
@@ -868,13 +869,19 @@ jobs:
         with:
           subject-path: ${{ steps.release.outputs.sbom_path }}
 
-      - name: Publish package through npm OIDC
+      - name: Publish package through protected npm authentication
         if: steps.release.outputs.should_publish_npm == 'true'
         env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
           DIST_TAG: ${{ steps.release.outputs.dist_tag }}
           TARBALL: ${{ steps.release.outputs.tarball_path }}
         run: |
           set -euo pipefail
+
+          if [ -z "${NODE_AUTH_TOKEN:-}" ]; then
+            echo "The protected npm publication credential is unavailable." >&2
+            exit 1
+          fi
 
           PUBLISH_ARGS=(--access public --provenance --registry https://registry.npmjs.org --tag "${DIST_TAG}")
           npm publish "./${TARBALL}" --ignore-scripts "${PUBLISH_ARGS[@]}"

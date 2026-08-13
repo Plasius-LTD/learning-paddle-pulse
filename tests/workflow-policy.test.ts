@@ -6,6 +6,10 @@ const ciWorkflow = readFileSync(
   new URL("../.github/workflows/ci.yml", import.meta.url),
   "utf8",
 );
+const cdWorkflow = readFileSync(
+  new URL("../.github/workflows/cd.yml", import.meta.url),
+  "utf8",
+);
 
 describe("repository workflow policy", () => {
   it("keeps pull requests hosted and binds trusted main jobs to the approved group", () => {
@@ -21,5 +25,14 @@ describe("repository workflow policy", () => {
     expect(ciWorkflow).not.toContain(
       "github.event_name == 'pull_request' && '[\"ubuntu-latest\"]'",
     );
+  });
+
+  it("publishes immutable artifacts from the protected production job", () => {
+    expect(cdWorkflow).toContain("environment: production");
+    expect(cdWorkflow).toContain("NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}");
+    expect(cdWorkflow).toContain('registry-url: "https://registry.npmjs.org"');
+    expect(cdWorkflow).toContain("--ignore-scripts");
+    expect(cdWorkflow).toContain("--provenance");
+    expect(cdWorkflow).toContain("Verify immutable publication bundle");
   });
 });
