@@ -16,6 +16,8 @@ describe("repository workflow policy", () => {
     expect(ciWorkflow).toContain("runs-on: ubuntu-latest");
     expect(ciWorkflow).toContain("group: Public CI - Quarantined");
     expect(ciWorkflow).toContain("labels: [self-hosted, Linux, X64]");
+    expect(ciWorkflow).toContain("package-manager-cache: false");
+    expect(ciWorkflow).not.toContain("cache: 'npm'");
     expect(ciWorkflow).not.toContain(
       "github.event_name == 'pull_request' && '[\"ubuntu-latest\"]'",
     );
