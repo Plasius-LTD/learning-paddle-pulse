@@ -1,6 +1,6 @@
 {
   "name": "@plasius/learning-paddle-pulse",
-  "version": "0.1.2",
+  "version": "0.1.3",
   "description": "Immutable 54-stage Paddle Pulse curriculum, deterministic engine, and protected assessment contracts.",
   "type": "module",
   "sideEffects": false,
