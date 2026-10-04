@@ -72,7 +72,7 @@
   },
   "homepage": "https://github.com/Plasius-LTD/learning-paddle-pulse#readme",
   "dependencies": {
-    "@plasius/learning": "0.8.1",
+    "@plasius/learning": "0.8.2",
     "quickjs-emscripten": "0.32.0"
   },
   "devDependencies": {
